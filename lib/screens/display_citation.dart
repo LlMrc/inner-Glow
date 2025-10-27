@@ -1,35 +1,39 @@
-// ...existing code...
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:nodus_application/l10n/app_localizations.dart';
+import 'package:nodus_application/models/citation_model.dart';
+import 'package:nodus_application/services/google_ads_heleper.dart';
+import 'package:nodus_application/services/screenshot_service.dart';
+import 'package:nodus_application/services/share_service.dart';
+import 'package:nodus_application/widgets/citation_view.dart';
+import 'package:nodus_application/widgets/editors/font_picker.dart';
+import 'package:nodus_application/widgets/editors/gradient_picker.dart';
+
 import 'package:screenshot/screenshot.dart';
-import 'package:share_plus/share_plus.dart';
 
 class DisplayCitation extends StatefulWidget {
-  const DisplayCitation({super.key, required this.id});
+  const DisplayCitation({super.key, this.mood, this.citationText});
 
-  final String id;
+  final String? mood;
+  final String? citationText;
   @override
   State<DisplayCitation> createState() => _DisplayCitationState();
 }
 
 class _DisplayCitationState extends State<DisplayCitation> {
-  // Ajouter le controller pour screenshot
-  final screenshotController = ScreenshotController();
+  // Ajouter une variable d'état pour la citation actuelle
+  Citation? currentCitation;
+  // Services
+  final ScreenshotService _screenshotService = ScreenshotService();
+  final ShareService _shareService = ShareService();
+
+  // Utilisez le controller du service
+  get screenshotController => _screenshotService.controller;
 
   Future<void> _captureAndShare() async {
-    final image = await screenshotController.capture();
-    if (image == null) return;
-
-    final directory = await getTemporaryDirectory();
-    final imagePath = '${directory.path}/citation.png';
-    final imageFile = File(imagePath);
-    await imageFile.writeAsBytes(image);
-
-    await Share.shareXFiles([
-      XFile(imagePath),
-    ], text: 'Ma citation personnalisée');
+    final imageFile = await _screenshotService.captureAndSave();
+    if (imageFile != null) {
+      await _shareService.shareImage(imageFile);
+    }
   }
 
   // Liste de gradients disponibles
@@ -41,17 +45,34 @@ class _DisplayCitationState extends State<DisplayCitation> {
 
   // Liste d'images de background disponibles (ajoutez ces fichiers dans pubspec.yaml)
   final List<String> backgroundImages = [
-    'assets/images/bg1.png',
-    'assets/images/bg2.png',
-    'assets/images/citation_background.png',
+    'assets/images/bg1.jpeg',
+    'assets/images/bg2.jpeg',
+    'assets/images/bg3.jpeg',
+    'assets/images/bg4.jpeg',
+    'assets/images/bg5.jpeg',
+    'assets/images/bg6.jpeg',
+    'assets/images/bg7.jpeg',
+    'assets/images/bg8.jpeg',
+    'assets/images/bg9.jpeg',
+    'assets/images/bg10.jpeg',
+    'assets/images/bg11.jpeg',
+    'assets/images/bg12.jpeg',
+    'assets/images/bg13.jpeg',
+    'assets/images/bg15.jpeg',
+    'assets/images/bg16.jpeg',
+    'assets/images/bg17.jpeg',
+    'assets/images/bg18.jpeg',
+    'assets/images/bg19.jpeg',
+    'assets/images/bg20.jpeg',
+    'assets/images/bg21.jpeg',
   ];
 
-  // Liste de familles de polices (utiliser des polices système ou celles ajoutées au projet)
+  // Liste des familles de polices disponibles (défaut si aucune police personnalisée n'est fournie)
   final List<String> fontFamilies = [
-    '', // default system font
-    'Courier',
+    'Roboto',
     'Georgia',
     'Times New Roman',
+    'Arial',
   ];
 
   int currentIndex = 0;
@@ -62,7 +83,7 @@ class _DisplayCitationState extends State<DisplayCitation> {
   int selectedFontIndex = 0;
 
   bool isBottomSheetVisible = true;
-  bool isSaveButtonVisible = false;
+  bool isSaveButtonVisible = true;
 
   void changeGradient() {
     setState(() {
@@ -70,10 +91,18 @@ class _DisplayCitationState extends State<DisplayCitation> {
     });
   }
 
+  final GoogleAdsHelper _adsHelper = GoogleAdsHelper();
+  @override
+  void initState() {
+    _adsHelper.loadInterstitialAd();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final sampleText = 'Voici une citation exemple';
+    final l10n = AppLocalizations.of(context);
+
+    final citationHelper = CitationHelper();
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -83,92 +112,105 @@ class _DisplayCitationState extends State<DisplayCitation> {
           Expanded(
             child: Screenshot(
               controller: screenshotController,
-              child: AnimatedContainer(
-                duration: Duration(seconds: 1),
-                curve: Curves.easeInOut,
-                width: size.width,
-                height: size.height,
-                decoration: BoxDecoration(
-                  gradient: gradients[currentIndex],
-                  image: DecorationImage(
-                    image: AssetImage(
-                      backgroundImages[selectedBackgroundIndex],
-                    ),
-                    fit: BoxFit.cover,
-                  ),
+              child: FutureBuilder(
+                future: citationHelper.getCitationsByMood(
+                  widget.mood ?? l10n!.calm,
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: Text(
-                        sampleText,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontFamily: fontFamilies[selectedFontIndex].isEmpty
-                              ? null
-                              : fontFamilies[selectedFontIndex],
-                          fontSize: 28,
-                          color: Colors.white,
-                          shadows: [
-                            Shadow(blurRadius: 2, color: Colors.black26),
-                          ],
+                builder: (context, asyncSnapshot) {
+                  if (asyncSnapshot.connectionState ==
+                      ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (asyncSnapshot.hasError) {
+                    return Center(child: Text('Error: ${asyncSnapshot.error}'));
+                  } else {
+                    final citations = asyncSnapshot.data as List<String>;
+                    if (citations.isEmpty) {
+                      return Center(child: Text('No citations found.'));
+                    }
+                    // Initialiser la citation courante si pas encore fait
+                    if (currentCitation == null) {
+                      _shuffleCitation(asyncSnapshot.data!);
+                    }
+                    // Vérifier si on a une citation
+                    if (currentCitation == null) {
+                      return Center(child: Text('No citation available.'));
+                    }
+
+                    return Stack(
+                      alignment: AlignmentGeometry.bottomCenter,
+                      children: [
+                        widget.citationText == null
+                            ? CitationView(
+                                text: currentCitation!.textForLocale(context),
+                                fontFamily: fontFamilies[selectedFontIndex],
+                                gradient: gradients[currentIndex],
+                                backgroundImage:
+                                    backgroundImages[selectedBackgroundIndex],
+                              )
+                            : CitationView(
+                                text: widget.citationText!,
+                                fontFamily: fontFamilies[selectedFontIndex],
+                                gradient: gradients[currentIndex],
+                                backgroundImage:
+                                    backgroundImages[selectedBackgroundIndex],
+                              ),
+
+                        Positioned(
+                          bottom: 20,
+                          child: _showRefreshBtn
+                              ? IconButton(
+                                  onPressed: () {
+                                    if (asyncSnapshot.hasData) {
+                                      _shuffleCitation(asyncSnapshot.data!);
+                                    }
+                                  },
+                                  icon: Icon(Icons.refresh),
+                                )
+                              : SizedBox.shrink(),
                         ),
-                      ),
-                    ),
-                  ],
-                ),
+                      ],
+                    );
+                  }
+                },
               ),
             ),
           ),
+
           // Boutons d'édition (hors capture)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildEditor(
-                icon: Icon(Icons.color_lens),
-                text: 'couleur',
-                onTap: () {
-                  setState(() {
-                    selectedIndex = 0;
-                  });
-                },
-              ),
-              _buildEditor(
-                icon: Icon(Icons.font_download),
-                text: 'police',
-                onTap: () {
-                  setState(() {
-                    selectedIndex = 1;
-                  });
-                },
-              ),
-              _buildEditor(
-                icon: Icon(Icons.image),
-                text: 'background',
-                onTap: () {
-                  setState(() {
-                    selectedIndex = 2;
-                  });
-                },
-              ),
-            ],
-          ),
+          if (isSaveButtonVisible)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildEditor(
+                  icon: Icon(Icons.color_lens),
+                  text: l10n!.gradientEditor,
+                  onTap: () => setState(() => selectedIndex = 0),
+                ),
+                _buildEditor(
+                  icon: Icon(Icons.font_download),
+                  text: l10n.fontEditor,
+                  onTap: () => setState(() => selectedIndex = 1),
+                ),
+                _buildEditor(
+                  icon: Icon(Icons.image),
+                  text: l10n.backgroundEditor,
+                  onTap: () => setState(() => selectedIndex = 2),
+                ),
+              ],
+            ),
         ],
       ),
       bottomSheet: isBottomSheetVisible
           ? Row(
               children: [
-                _widgetForCurrentIndex(),
+                Expanded(child: _widgetForCurrentIndex()),
                 SizedBox(width: 20),
                 _saveButton(
-                  onTap: () {
-                    setState(() {
-                      isBottomSheetVisible = false;
-                      isSaveButtonVisible = false;
-                    });
-                  },
+                  onTap: () => setState(() {
+                    isBottomSheetVisible = false;
+                    isSaveButtonVisible = false;
+                    _adsHelper.showInterstitialAd();
+                  }),
                 ),
               ],
             )
@@ -176,7 +218,18 @@ class _DisplayCitationState extends State<DisplayCitation> {
     );
   }
 
+  // Méthode pour choisir une citation aléatoire
+  void _shuffleCitation(List<Citation> citations) {
+    if (citations.isNotEmpty) {
+      setState(() {
+        citations.shuffle();
+        currentCitation = citations.first;
+      });
+    }
+  }
+
   Widget shareButton() {
+    final l10n = AppLocalizations.of(context);
     return SizedBox(
       width: double.infinity,
       height: 60,
@@ -188,22 +241,26 @@ class _DisplayCitationState extends State<DisplayCitation> {
               backgroundColor: Colors.white,
             ),
             onPressed: () {
-              // Partager le texte seul
-              SharePlus.instance.share(
-                ShareParams(text: 'Voici une citation exemple'),
-              );
+              setState(() => _showRefreshBtn = false);
+              if (currentCitation != null) {
+                _shareService.shareText(
+                  currentCitation!.textForLocale(context),
+                );
+              }
             },
-            label: Text('Partager text'),
+            label: Text(l10n!.shareText),
             icon: Icon(Icons.font_download),
           ),
-          Spacer(),
+          // ...existing code...
           TextButton.icon(
             style: TextButton.styleFrom(
               shadowColor: Colors.transparent,
               backgroundColor: Colors.white,
             ),
-            onPressed: _captureAndShare,
-            label: Text('Partager image'),
+            onPressed: () {
+              _captureAndShare();
+            },
+            label: Text(l10n.shareImage),
             icon: Icon(Icons.image_outlined),
           ),
         ],
@@ -214,112 +271,30 @@ class _DisplayCitationState extends State<DisplayCitation> {
   Widget _widgetForCurrentIndex() {
     switch (selectedIndex) {
       case 0:
-        return _showGradientPicker();
+        return GradientPicker(
+          gradients: gradients,
+          selectedIndex: currentIndex,
+          onGradientSelected: (index) {
+            setState(() {
+              currentIndex = index;
+            });
+          },
+        );
       case 1:
-        return _showFrontPicker(); // ici c'est le picker de polices
+        return FontPicker(
+          fonts: fontFamilies,
+          selectedIndex: selectedFontIndex,
+          onFontSelected: (index) {
+            setState(() {
+              selectedFontIndex = index;
+            });
+          },
+        );
       case 2:
         return _showBackgroundPicker();
       default:
         return SizedBox.shrink();
     }
-  }
-
-  Widget _showGradientPicker() {
-    return Container(
-      padding: EdgeInsets.all(16),
-      height: 60,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: gradients.length,
-        separatorBuilder: (_, __) => SizedBox(width: 12),
-        itemBuilder: (context, index) {
-          return GestureDetector(
-            onTap: () {
-              setState(() {
-                currentIndex = index;
-              });
-              // ne pas pop - on reste dans le bottom sheet
-            },
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: gradients[index],
-                border: Border.all(
-                  color: currentIndex == index ? Colors.black : Colors.white,
-                  width: 3,
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _showFrontPicker() {
-    return Container(
-      padding: EdgeInsets.all(16),
-      height: 80,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: fontFamilies.length,
-        separatorBuilder: (_, __) => SizedBox(width: 12),
-        itemBuilder: (context, index) {
-          final family = fontFamilies[index];
-          return GestureDetector(
-            onTap: _isPremiumUser
-                ? () {
-                    setState(() {
-                      selectedFontIndex = index;
-                    });
-                  }
-                : null,
-            child: Stack(
-              children: [
-                Container(
-                  width: 80,
-                  height: 60,
-                  padding: EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: Colors.white24,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: selectedFontIndex == index
-                          ? Colors.black
-                          : Colors.white,
-                      width: 2,
-                    ),
-                  ),
-                  child: Center(
-                    child: Text(
-                      'Aa',
-                      style: TextStyle(
-                        fontFamily: family.isEmpty ? null : family,
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-                if (!_isPremiumUser)
-                  Container(
-                    width: 80,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      color: Colors.black54,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Center(child: Icon(Icons.lock, color: Colors.white)),
-                  ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
   }
 
   _buildEditor({
@@ -346,8 +321,10 @@ class _DisplayCitationState extends State<DisplayCitation> {
     );
   }
 
-  final bool _isPremiumUser =
-      false; // Remplacez par la logique réelle de vérification de l'utilisateur premium
+  final bool _isPremiumUser = false;
+
+  bool _showRefreshBtn =
+      true; // Remplacez par la logique réelle de vérification de l'utilisateur premium
 
   Widget _showBackgroundPicker() {
     return Container(
@@ -410,3 +387,16 @@ class _DisplayCitationState extends State<DisplayCitation> {
   }
 }
 // ...existing code...
+// supposons que `citation` est une instance de Citation récupérée
+// final displayedText = citation.textForLocale(context);
+
+// // Puis dans le widget:
+// Text(
+//   displayedText,
+//   textAlign: TextAlign.center,
+//   style: TextStyle(
+//     fontFamily: fontFamilies[selectedFontIndex].isEmpty ? null : fontFamilies[selectedFontIndex],
+//     fontSize: 28,
+//     color: Colors.white,
+//   ),
+// ),

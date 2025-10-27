@@ -1,4 +1,4 @@
-package com.example.nodus_application
+package com.innerglow.gravitylab
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "743424699385",
+    "project_id": "inner-glow-10eb6",
+    "storage_bucket": "inner-glow-10eb6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:743424699385:android:ed53a0d325490e6210eb28",
+        "android_client_info": {
+          "package_name": "com.innerglow.gravitylab"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBqpgxc3agr1mykCedfqwqaFbX3kiW6kAk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

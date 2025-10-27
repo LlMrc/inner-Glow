@@ -1,8 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:nodus_application/home.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:nodus_application/models/home.dart';
+import 'package:nodus_application/l10n/app_localizations.dart';
+import 'package:nodus_application/local/database_helper.dart';
+import 'package:nodus_application/screens/display_citation.dart';
+import 'package:nodus_application/utils/theme_notifier.dart';
+import 'package:provider/provider.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  StringListDatabaseHelper().init();
+  await Firebase.initializeApp();
+  MobileAds.instance.initialize();
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ThemeProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -11,12 +27,25 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Glow',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: Home(),
+    return Consumer<ThemeProvider>(
+      builder: (BuildContext context, ThemeProvider value, _) {
+        return MaterialApp(
+          title: 'Glow',
+          theme: value.getTheme,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Home(),
+        );
+      },
+      // child: MaterialApp(
+      //   title: 'Glow',
+      //   theme: ThemeData(
+      //     colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      //   ),
+      //   localizationsDelegates: AppLocalizations.localizationsDelegates,
+      //   supportedLocales: AppLocalizations.supportedLocales,
+      //   home: Home(),
+      // ),
     );
   }
 }
@@ -29,12 +58,16 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final favoriteCitationList = StringListDatabaseHelper.instance;
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
       appBar: AppBar(
         leading: Icon(Icons.wb_sunny_rounded),
-        title: Text('inner Glow'),
+        title: Text(l10n!.appTitle),
         actions: [
           _premiumIcon(
             onTap: () {
@@ -47,14 +80,13 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
-
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               SizedBox(height: 20),
               Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: Text(
-                  'Comment vous sentez vous aujourd\'hui ?✨',
+                  l10n.howAreYouToday,
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
               ),
@@ -65,69 +97,134 @@ class _MyHomePageState extends State<MyHomePage> {
                   _buildGlowContainer(
                     child: '😊',
                     glowColor: Colors.yellowAccent,
-                    data: 'Heureux',
+                    data: l10n.happy,
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => DisplayCitation(mood: l10n.happy),
+                      ),
+                    ),
                   ),
-
                   _buildGlowContainer(
                     child: '😔',
                     glowColor: Colors.blueAccent,
-                    data: 'Triste',
+                    data: l10n.sad,
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => DisplayCitation(mood: l10n.sad),
+                      ),
+                    ),
                   ),
-
                   _buildGlowContainer(
                     child: '😡',
                     glowColor: Colors.redAccent,
-                    data: 'En colère',
+                    data: l10n.angry,
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => DisplayCitation(mood: l10n.angry),
+                      ),
+                    ),
                   ),
                   _buildGlowContainer(
                     child: '😱',
                     glowColor: Colors.purpleAccent,
-                    data: 'Effrayé',
+                    data: l10n.scared,
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            DisplayCitation(mood: l10n.scared),
+                      ),
+                    ),
                   ),
                   _buildGlowContainer(
                     child: '😴',
                     glowColor: Colors.greenAccent,
-                    data: 'Fatigué',
+                    data: l10n.tired,
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => DisplayCitation(mood: l10n.tired),
+                      ),
+                    ),
                   ),
                   _buildGlowContainer(
                     child: '🤢',
                     glowColor: Colors.green,
-                    data: 'Malade',
+                    data: l10n.sick,
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => DisplayCitation(mood: l10n.sick),
+                      ),
+                    ),
                   ),
                   _buildGlowContainer(
                     child: '😍',
                     glowColor: Colors.pinkAccent,
-                    data: 'Amoureux',
+                    data: l10n.inLove,
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            DisplayCitation(mood: l10n.inLove),
+                      ),
+                    ),
                   ),
                   _buildGlowContainer(
                     child: '🤯',
                     glowColor: Colors.orangeAccent,
-                    data: 'Stressé',
+                    data: l10n.stressed,
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            DisplayCitation(mood: l10n.stressed),
+                      ),
+                    ),
                   ),
                   _buildGlowContainer(
                     child: '😌',
                     glowColor: Colors.blueGrey,
-                    data: 'Calme',
+                    data: l10n.calm,
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => DisplayCitation(mood: l10n.calm),
+                      ),
+                    ),
                   ),
-
                   _buildGlowContainer(
                     child: '💡',
                     glowColor: Colors.deepPurpleAccent,
-                    data: 'Inspiré',
+                    data: l10n.inspired,
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            DisplayCitation(mood: l10n.inspired),
+                      ),
+                    ),
                   ),
                   _buildGlowContainer(
                     child: '💪',
                     glowColor: Colors.tealAccent,
-                    data: 'Motivé',
+                    data: l10n.motivated,
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            DisplayCitation(mood: l10n.motivated),
+                      ),
+                    ),
                   ),
                   _buildGlowContainer(
                     child: '🤔',
                     glowColor: Colors.deepOrange,
-                    data: 'Pensif',
+                    data: l10n.thoughtful,
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            DisplayCitation(mood: l10n.thoughtful),
+                      ),
+                    ),
                   ),
                 ],
               ),
 
+              // Add your localization strings here
+              // Example of localization strings in ARB format
               SizedBox(height: 40),
 
               Container(
@@ -154,10 +251,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Citation du jour'),
+                    Text(l10n.quoteOfTheDay),
                     SizedBox(height: 8),
                     Text(
-                      'La vie est belle, profitez de chaque instant.',
+                      l10n.dailyQuote,
                       style: TextStyle(
                         color: Colors.white70,
                         fontSize: 24,
@@ -176,9 +273,14 @@ class _MyHomePageState extends State<MyHomePage> {
                             backgroundColor: Colors.white,
                           ),
                           onPressed: () {
-                            print('partager');
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    DisplayCitation(mood: l10n.dailyQuote),
+                              ),
+                            );
                           },
-                          label: Text('Partager'),
+                          label: Text(l10n.share),
                           icon: Icon(Icons.share),
                         ),
                         Spacer(),
@@ -188,10 +290,13 @@ class _MyHomePageState extends State<MyHomePage> {
                             backgroundColor: Colors.white,
                           ),
                           onPressed: () {
-                            print('Ajouter aux favoris');
+                            favoriteCitationList.add(l10n.dailyQuote);
+                            setState(() => _isFavorite = true);
                           },
-                          label: Text('Ajouter aux favoris'),
-                          icon: Icon(Icons.favorite_border),
+                          label: Text(l10n.addToFavorites),
+                          icon: _isFavorite == true
+                              ? Icon(Icons.favorite, color: Colors.red)
+                              : Icon(Icons.favorite_border),
                         ),
                       ],
                     ),
@@ -206,6 +311,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  bool _isFavorite = false;
   Widget _premiumIcon({required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
@@ -223,7 +329,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
+              color: Colors.black.withOpacity(0.2),
               blurRadius: 6,
               offset: Offset(0, 3),
             ),
@@ -252,23 +358,27 @@ class _MyHomePageState extends State<MyHomePage> {
     required String child,
     required Color glowColor,
     required String data,
+    required VoidCallback onTap,
   }) {
     return Column(
       children: [
         SizedBox(height: 18),
-        Container(
-          padding: EdgeInsets.all(8),
-          alignment: Alignment.center,
-          width: 70,
-          height: 70,
-          decoration: BoxDecoration(
-            color: glowColor,
-            borderRadius: BorderRadius.circular(100),
-          ),
-          child: Text(
-            child,
-            style: TextStyle(fontSize: 40),
-            textAlign: TextAlign.center,
+        GestureDetector(
+          onTap: onTap,
+          child: Container(
+            padding: EdgeInsets.all(8),
+            alignment: Alignment.center,
+            width: 70,
+            height: 70,
+            decoration: BoxDecoration(
+              color: glowColor,
+              borderRadius: BorderRadius.circular(100),
+            ),
+            child: Text(
+              child,
+              style: TextStyle(fontSize: 40),
+              textAlign: TextAlign.center,
+            ),
           ),
         ),
         SizedBox(height: 8),

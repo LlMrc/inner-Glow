@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:nodus_application/favorite.dart';
+import 'package:nodus_application/screens/favorite.dart';
 import 'package:nodus_application/main.dart';
-import 'package:nodus_application/recent.dart';
-import 'package:nodus_application/settings.dart';
+import 'package:nodus_application/screens/recent.dart';
+import 'package:nodus_application/screens/settings.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -16,7 +16,7 @@ class _HomeState extends State<Home> {
 
   void _onNavTap(int index) => setState(() => _selectedIndex = index);
 
-  final pages = <Widget>[MyHomePage(), Favorite(), Recent(), Settings()];
+  final pages = <Widget>[MyHomePage(), Favorite(), Recent(), SettingsPage()];
 
   @override
   Widget build(BuildContext context) {
