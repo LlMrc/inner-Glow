@@ -41,9 +41,9 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyA_oPQjgeX3WrCDNjE8i-toKHVlHcXofRM',
-    appId: '1:743424699385:web:e4a34dffdd651da310eb28',
-    messagingSenderId: '743424699385',
+    apiKey: '',
+    appId: '',
+    messagingSenderId: '',
     projectId: 'inner-glow-10eb6',
     authDomain: 'inner-glow-10eb6.firebaseapp.com',
     storageBucket: 'inner-glow-10eb6.firebasestorage.app',
@@ -51,17 +51,17 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBqpgxc3agr1mykCedfqwqaFbX3kiW6kAk',
-    appId: '1:743424699385:android:ed53a0d325490e6210eb28',
-    messagingSenderId: '743424699385',
+    apiKey: '',
+    appId: '',
+    messagingSenderId: '',
     projectId: 'inner-glow-10eb6',
     storageBucket: 'inner-glow-10eb6.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyD8n35aBli3Stp8y2HROKESsmT_shjdc8s',
-    appId: '1:743424699385:ios:38e599d3a1beb55810eb28',
-    messagingSenderId: '743424699385',
+    apiKey: '',
+    appId: '',
+    messagingSenderId: '',
     projectId: 'inner-glow-10eb6',
     storageBucket: 'inner-glow-10eb6.firebasestorage.app',
     iosBundleId: 'com.innerglow.gravitylab',
