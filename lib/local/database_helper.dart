@@ -10,52 +10,59 @@ class StringListDatabaseHelper {
 
   StringListDatabaseHelper._internal();
 
-  static const String _key = 'my_string_list';
+  static const String _mainKey = 'my_string_list';
+  static const String _favoriteKey = 'favorite_citation_list';
+
   SharedPreferences? _prefs;
 
-  /// Initialize SharedPreferences once
-  Future<void> init() async {
+  /// Initialise SharedPreferences si nécessaire
+  Future<void> _ensureInitialized() async {
     _prefs ??= await SharedPreferences.getInstance();
-    if (!_prefs!.containsKey(_key)) {
-      await _prefs!.setStringList(_key, []);
+  }
+
+  /// Initialise la liste principale si elle n'existe pas
+  Future<void> init() async {
+    await _ensureInitialized();
+    _prefs!.setStringList(_mainKey, _prefs!.getStringList(_mainKey) ?? []);
+  }
+
+  /// Méthode générique pour ajouter ou retirer une valeur d'une liste
+  Future<void> _updateList(String key, String value, {bool add = true}) async {
+    await _ensureInitialized();
+    final List<String> list = _prefs!.getStringList(key) ?? [];
+    if (add) {
+      if (!list.contains(value)) list.add(value);
+    } else {
+      list.remove(value);
     }
+    await _prefs!.setStringList(key, list);
   }
 
-  /// Add a string to the list
-  Future<void> add(String value) async {
-    final List<String> currentList = _prefs!.getStringList(_key) ?? [];
-    currentList.add(value);
-    await _prefs!.setStringList(_key, currentList);
-  }
+  /// Ajoute une valeur à la liste principale
+  Future<void> add(String value) async =>
+      _updateList(_mainKey, value, add: true);
 
-  /// Remove a string from the list
-  Future<void> remove(String value) async {
-    final List<String> currentList = _prefs!.getStringList(_key) ?? [];
-    currentList.remove(value);
-    await _prefs!.setStringList(_key, currentList);
-  }
+  /// Supprime une valeur de la liste principale
+  Future<void> remove(String value) async =>
+      _updateList(_mainKey, value, add: false);
 
-  /// Get the current list
+  /// Récupère la liste principale
   Future<List<String>> getList() async {
-    return _prefs!.getStringList(_key) ?? [];
+    await _ensureInitialized();
+    return _prefs!.getStringList(_mainKey) ?? [];
   }
 
-  /// Get the favorite citation list
+  /// Récupère la liste des citations favorites
   Future<List<String>> getFavoriteCitationList() async {
-    return _prefs!.getStringList('favorite_citation_list') ?? [];
+    await _ensureInitialized();
+    return _prefs!.getStringList(_favoriteKey) ?? [];
   }
 
-  /// Add a favorite citation
-  Future<void> addFavoriteCitation(String value) async {
-    final List<String> currentList = await getFavoriteCitationList();
-    currentList.add(value);
-    await _prefs!.setStringList('favorite_citation_list', currentList);
-  }
+  /// Ajoute une citation favorite
+  Future<void> addFavoriteCitation(String value) async =>
+      _updateList(_favoriteKey, value, add: true);
 
-  /// Remove a favorite citation
-  Future<void> removeFavoriteCitation(String value) async {
-    final List<String> currentList = await getFavoriteCitationList();
-    currentList.remove(value);
-    await _prefs!.setStringList('favorite_citation_list', currentList);
-  }
+  /// Supprime une citation favorite
+  Future<void> removeFavoriteCitation(String value) async =>
+      _updateList(_favoriteKey, value, add: false);
 }

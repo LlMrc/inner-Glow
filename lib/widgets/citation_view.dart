@@ -31,15 +31,24 @@ class CitationView extends StatelessWidget {
             : null,
       ),
       child: Center(
-        child: Text(
-          text,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontFamily: fontFamily.isEmpty ? null : fontFamily,
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-            shadows: [Shadow(blurRadius: 2, color: Colors.black26)],
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            text,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: fontFamily.isEmpty ? null : fontFamily,
+              fontSize: 30,
+
+              color: Colors.white,
+              shadows: [
+                Shadow(
+                  blurRadius: 10.0, // shadow blur
+                  color: Colors.green, // shadow color
+                  offset: Offset(2.0, 2.0), // how much shadow will be
+                ),
+              ],
+            ),
           ),
         ),
       ),

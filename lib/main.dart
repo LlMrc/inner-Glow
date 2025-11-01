@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:nodus_application/models/home.dart';
+import 'package:nodus_application/models/citation_model.dart';
+import 'package:nodus_application/screens/home.dart';
 import 'package:nodus_application/l10n/app_localizations.dart';
 import 'package:nodus_application/local/database_helper.dart';
 import 'package:nodus_application/screens/display_citation.dart';
@@ -30,6 +31,7 @@ class MyApp extends StatelessWidget {
     return Consumer<ThemeProvider>(
       builder: (BuildContext context, ThemeProvider value, _) {
         return MaterialApp(
+          debugShowCheckedModeBanner: false,
           title: 'Glow',
           theme: value.getTheme,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -59,6 +61,9 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final favoriteCitationList = StringListDatabaseHelper.instance;
+
+  final citationHelper = CitationHelper();
+  Citation? currentCitation;
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +105,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     data: l10n.happy,
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => DisplayCitation(mood: l10n.happy),
+                        builder: (context) => DisplayCitation(mood: 'happy'),
                       ),
                     ),
                   ),
@@ -110,7 +115,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     data: l10n.sad,
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => DisplayCitation(mood: l10n.sad),
+                        builder: (context) => DisplayCitation(mood: 'sad'),
                       ),
                     ),
                   ),
@@ -120,7 +125,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     data: l10n.angry,
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => DisplayCitation(mood: l10n.angry),
+                        builder: (context) => DisplayCitation(mood: 'angry'),
                       ),
                     ),
                   ),
@@ -130,8 +135,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     data: l10n.scared,
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) =>
-                            DisplayCitation(mood: l10n.scared),
+                        builder: (context) => DisplayCitation(mood: 'scared'),
                       ),
                     ),
                   ),
@@ -141,7 +145,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     data: l10n.tired,
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => DisplayCitation(mood: l10n.tired),
+                        builder: (context) => DisplayCitation(mood: 'tired'),
                       ),
                     ),
                   ),
@@ -151,7 +155,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     data: l10n.sick,
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => DisplayCitation(mood: l10n.sick),
+                        builder: (context) => DisplayCitation(mood: 'sick'),
                       ),
                     ),
                   ),
@@ -161,8 +165,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     data: l10n.inLove,
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) =>
-                            DisplayCitation(mood: l10n.inLove),
+                        builder: (context) => DisplayCitation(mood: 'inLove'),
                       ),
                     ),
                   ),
@@ -172,8 +175,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     data: l10n.stressed,
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) =>
-                            DisplayCitation(mood: l10n.stressed),
+                        builder: (context) => DisplayCitation(mood: 'stressed'),
                       ),
                     ),
                   ),
@@ -183,7 +185,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     data: l10n.calm,
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => DisplayCitation(mood: l10n.calm),
+                        builder: (context) => DisplayCitation(mood: 'calm'),
                       ),
                     ),
                   ),
@@ -193,8 +195,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     data: l10n.inspired,
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) =>
-                            DisplayCitation(mood: l10n.inspired),
+                        builder: (context) => DisplayCitation(mood: 'inspired'),
                       ),
                     ),
                   ),
@@ -205,7 +206,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) =>
-                            DisplayCitation(mood: l10n.motivated),
+                            DisplayCitation(mood: 'motivated'),
                       ),
                     ),
                   ),
@@ -216,7 +217,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) =>
-                            DisplayCitation(mood: l10n.thoughtful),
+                            DisplayCitation(mood: 'thoughtful'),
                       ),
                     ),
                   ),
@@ -253,15 +254,56 @@ class _MyHomePageState extends State<MyHomePage> {
                   children: [
                     Text(l10n.quoteOfTheDay),
                     SizedBox(height: 8),
-                    Text(
-                      l10n.dailyQuote,
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 24,
-                        fontStyle: FontStyle.italic,
-                        fontWeight: FontWeight.w800,
-                      ),
-                      textAlign: TextAlign.center,
+                    FutureBuilder(
+                      future: citationHelper.getCitationsByMood('dailyQuote'),
+                      builder: (context, asyncSnapshot) {
+                        if (asyncSnapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(child: CircularProgressIndicator());
+                        } else if (asyncSnapshot.hasError) {
+                          return Center(
+                            child: Text('Error: ${asyncSnapshot.error}'),
+                          );
+                        } else {
+                          final citations =
+                              asyncSnapshot.data as List<Citation>;
+                          if (citations.isEmpty) {
+                            return Center(child: Text('No citations found.'));
+                          }
+                          // Initialiser la citation courante si pas encore fait
+                          if (currentCitation == null) {
+                            if (asyncSnapshot.hasData) {
+                              if (currentCitation == null &&
+                                  asyncSnapshot.hasData) {
+                                WidgetsBinding.instance.addPostFrameCallback((
+                                  _,
+                                ) {
+                                  _shuffleCitation(citations);
+                                  print('citation length: ${citations.length}');
+                                });
+                              }
+                            }
+                          }
+                          // Vérifier si on a une citation
+                          if (currentCitation == null) {
+                            return Center(
+                              child: Text('No citation available.'),
+                            );
+                          }
+
+                          return Text(
+                            currentCitation!.textForLocale(context),
+
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 24,
+                              fontStyle: FontStyle.italic,
+                              fontWeight: FontWeight.w800,
+                            ),
+                            textAlign: TextAlign.center,
+                          );
+                        }
+                      },
                     ),
 
                     Row(
@@ -385,5 +427,15 @@ class _MyHomePageState extends State<MyHomePage> {
         Text(data),
       ],
     );
+  }
+
+  // Méthode pour choisir une citation aléatoire
+  void _shuffleCitation(List<Citation> citations) {
+    if (citations.isNotEmpty) {
+      setState(() {
+        citations.shuffle();
+        currentCitation = citations.first;
+      });
+    }
   }
 }

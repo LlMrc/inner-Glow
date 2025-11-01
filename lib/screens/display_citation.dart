@@ -41,10 +41,15 @@ class _DisplayCitationState extends State<DisplayCitation> {
     LinearGradient(colors: [Colors.blue, Colors.purple]),
     LinearGradient(colors: [Colors.orange, Colors.red]),
     LinearGradient(colors: [Colors.green, Colors.teal]),
+    LinearGradient(colors: [Colors.yellow, Colors.black45]),
+    LinearGradient(colors: [Colors.pink, Colors.grey]),
+    LinearGradient(colors: [Colors.tealAccent, Colors.blue]),
+    LinearGradient(colors: [Colors.indigo, Colors.brown]),
   ];
 
   // Liste d'images de background disponibles (ajoutez ces fichiers dans pubspec.yaml)
   final List<String> backgroundImages = [
+    '',
     'assets/images/bg1.jpeg',
     'assets/images/bg2.jpeg',
     'assets/images/bg3.jpeg',
@@ -69,21 +74,21 @@ class _DisplayCitationState extends State<DisplayCitation> {
 
   // Liste des familles de polices disponibles (défaut si aucune police personnalisée n'est fournie)
   final List<String> fontFamilies = [
-    'Roboto',
-    'Georgia',
-    'Times New Roman',
-    'Arial',
+    'Quicksand',
+    'Open Sans',
+    'Karla-MediumItalic',
+    'MomoSignature',
+    'ShadowsIntoLight-Regular',
   ];
 
   int currentIndex = 0;
   int selectedIndex = 0;
 
   // indices pour background et font
-  int selectedBackgroundIndex = 2;
+  int selectedBackgroundIndex = 0;
   int selectedFontIndex = 0;
 
-  bool isBottomSheetVisible = true;
-  bool isSaveButtonVisible = true;
+  bool isShare = false;
 
   void changeGradient() {
     setState(() {
@@ -98,23 +103,23 @@ class _DisplayCitationState extends State<DisplayCitation> {
     super.initState();
   }
 
+  final citationHelper = CitationHelper();
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
 
-    final citationHelper = CitationHelper();
-
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      extendBody: true,
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // Partie à capturer
           Expanded(
             child: Screenshot(
               controller: screenshotController,
-              child: FutureBuilder(
+              child: FutureBuilder<List<Citation>>(
                 future: citationHelper.getCitationsByMood(
-                  widget.mood ?? l10n!.calm,
+                  widget.mood!.toLowerCase(),
                 ),
                 builder: (context, asyncSnapshot) {
                   if (asyncSnapshot.connectionState ==
@@ -123,19 +128,28 @@ class _DisplayCitationState extends State<DisplayCitation> {
                   } else if (asyncSnapshot.hasError) {
                     return Center(child: Text('Error: ${asyncSnapshot.error}'));
                   } else {
-                    final citations = asyncSnapshot.data as List<String>;
+                    final citations = asyncSnapshot.data as List<Citation>;
                     if (citations.isEmpty) {
                       return Center(child: Text('No citations found.'));
                     }
                     // Initialiser la citation courante si pas encore fait
                     if (currentCitation == null) {
-                      _shuffleCitation(asyncSnapshot.data!);
+                      if (asyncSnapshot.hasData) {
+                        if (currentCitation == null && asyncSnapshot.hasData) {
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            _shuffleCitation(citations);
+                            print('citation length: ${citations.length}');
+                          });
+                        }
+                      }
                     }
                     // Vérifier si on a une citation
                     if (currentCitation == null) {
                       return Center(child: Text('No citation available.'));
                     }
-
+                    print(
+                      'Printint images ${backgroundImages[selectedBackgroundIndex]}',
+                    );
                     return Stack(
                       alignment: AlignmentGeometry.bottomCenter,
                       children: [
@@ -156,18 +170,71 @@ class _DisplayCitationState extends State<DisplayCitation> {
                               ),
 
                         Positioned(
-                          bottom: 20,
-                          child: _showRefreshBtn
+                          bottom: 100,
+                          child: !isShare
                               ? IconButton(
                                   onPressed: () {
                                     if (asyncSnapshot.hasData) {
                                       _shuffleCitation(asyncSnapshot.data!);
                                     }
                                   },
-                                  icon: Icon(Icons.refresh),
+                                  icon: Icon(
+                                    Icons.refresh,
+                                    color: Colors.white,
+                                    size: 40,
+                                  ),
                                 )
                               : SizedBox.shrink(),
                         ),
+
+                        // Boutons d'édition (hors capture)
+                        (isShare == false)
+                            ? Positioned(
+                                bottom: 10,
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    _buildEditor(
+                                      icon: Icon(
+                                        Icons.color_lens,
+                                        color: Colors.grey.shade200,
+                                        size: 34,
+                                      ),
+                                      text: l10n!.gradientEditor,
+                                      onTap: () => setState(() {
+                                        selectedBackgroundIndex = 0;
+                                        selectedIndex = 0;
+                                      }),
+                                    ),
+                                    _buildEditor(
+                                      icon: Icon(
+                                        Icons.font_download,
+                                        color: Colors.grey.shade200,
+                                        size: 34,
+                                      ),
+                                      text: l10n.fontEditor,
+                                      onTap: () => setState(() {
+                                        selectedIndex = 1;
+                                        selectedBackgroundIndex = 0;
+                                      }),
+                                    ),
+                                    _buildEditor(
+                                      icon: Icon(
+                                        Icons.image,
+                                        color: Colors.grey.shade200,
+                                        size: 34,
+                                      ),
+                                      text: l10n.backgroundEditor,
+                                      onTap: () =>
+                                          setState(() => selectedIndex = 2),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : SizedBox.shrink(),
+                        Positioned(top: 60, right: 10, child: _saveButton()),
                       ],
                     );
                   }
@@ -176,45 +243,9 @@ class _DisplayCitationState extends State<DisplayCitation> {
             ),
           ),
 
-          // Boutons d'édition (hors capture)
-          if (isSaveButtonVisible)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildEditor(
-                  icon: Icon(Icons.color_lens),
-                  text: l10n!.gradientEditor,
-                  onTap: () => setState(() => selectedIndex = 0),
-                ),
-                _buildEditor(
-                  icon: Icon(Icons.font_download),
-                  text: l10n.fontEditor,
-                  onTap: () => setState(() => selectedIndex = 1),
-                ),
-                _buildEditor(
-                  icon: Icon(Icons.image),
-                  text: l10n.backgroundEditor,
-                  onTap: () => setState(() => selectedIndex = 2),
-                ),
-              ],
-            ),
+          _widgetForCurrentIndex(),
         ],
       ),
-      bottomSheet: isBottomSheetVisible
-          ? Row(
-              children: [
-                Expanded(child: _widgetForCurrentIndex()),
-                SizedBox(width: 20),
-                _saveButton(
-                  onTap: () => setState(() {
-                    isBottomSheetVisible = false;
-                    isSaveButtonVisible = false;
-                    _adsHelper.showInterstitialAd();
-                  }),
-                ),
-              ],
-            )
-          : shareButton(),
     );
   }
 
@@ -226,46 +257,6 @@ class _DisplayCitationState extends State<DisplayCitation> {
         currentCitation = citations.first;
       });
     }
-  }
-
-  Widget shareButton() {
-    final l10n = AppLocalizations.of(context);
-    return SizedBox(
-      width: double.infinity,
-      height: 60,
-      child: Row(
-        children: [
-          TextButton.icon(
-            style: TextButton.styleFrom(
-              shadowColor: Colors.transparent,
-              backgroundColor: Colors.white,
-            ),
-            onPressed: () {
-              setState(() => _showRefreshBtn = false);
-              if (currentCitation != null) {
-                _shareService.shareText(
-                  currentCitation!.textForLocale(context),
-                );
-              }
-            },
-            label: Text(l10n!.shareText),
-            icon: Icon(Icons.font_download),
-          ),
-          // ...existing code...
-          TextButton.icon(
-            style: TextButton.styleFrom(
-              shadowColor: Colors.transparent,
-              backgroundColor: Colors.white,
-            ),
-            onPressed: () {
-              _captureAndShare();
-            },
-            label: Text(l10n.shareImage),
-            icon: Icon(Icons.image_outlined),
-          ),
-        ],
-      ),
-    );
   }
 
   Widget _widgetForCurrentIndex() {
@@ -308,13 +299,13 @@ class _DisplayCitationState extends State<DisplayCitation> {
         child: Column(
           children: [
             Container(
-              padding: EdgeInsets.all(10),
+              padding: EdgeInsets.symmetric(horizontal: 24),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(100),
               ),
               child: icon,
             ),
-            Text(text),
+            Text(text, style: TextStyle(color: Colors.grey.shade100)),
           ],
         ),
       ),
@@ -322,9 +313,6 @@ class _DisplayCitationState extends State<DisplayCitation> {
   }
 
   final bool _isPremiumUser = false;
-
-  bool _showRefreshBtn =
-      true; // Remplacez par la logique réelle de vérification de l'utilisateur premium
 
   Widget _showBackgroundPicker() {
     return Container(
@@ -336,13 +324,16 @@ class _DisplayCitationState extends State<DisplayCitation> {
         separatorBuilder: (_, __) => SizedBox(width: 12),
         itemBuilder: (context, index) {
           return GestureDetector(
-            onTap: _isPremiumUser
-                ? () {
-                    setState(() {
-                      selectedBackgroundIndex = index;
-                    });
-                  }
-                : null,
+            onTap: () => setState(() {
+              selectedBackgroundIndex = index;
+            }),
+            // onTap: _isPremiumUser
+            //     ? () {
+            //         setState(() {
+            //           selectedBackgroundIndex = index;
+            //         });
+            //       }
+            //     : null,
             child: Stack(
               children: [
                 Container(
@@ -367,7 +358,7 @@ class _DisplayCitationState extends State<DisplayCitation> {
                     width: 80,
                     height: 60,
                     decoration: BoxDecoration(
-                      color: Colors.black54,
+                      color: Colors.black12,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Center(child: Icon(Icons.lock, color: Colors.white)),
@@ -380,9 +371,79 @@ class _DisplayCitationState extends State<DisplayCitation> {
     );
   }
 
-  Widget _saveButton({required VoidCallback onTap}) {
-    return isSaveButtonVisible
-        ? IconButton(onPressed: onTap, icon: Icon(Icons.save))
+  Widget _saveButton() {
+    return !isShare
+        ? Column(
+            spacing: 20,
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                //  AppLocalizations.of(context)!.saveText,
+                'Save',
+                style: TextStyle(
+                  fontSize: 20,
+                  color: Colors.white,
+                  shadows: [Shadow(blurRadius: 2, color: Colors.black26)],
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    isShare = true;
+                  });
+
+                  Future.delayed(Duration(milliseconds: 2), () {
+                    setState(() {
+                      isShare = false;
+                    });
+                  });
+                },
+                child: GestureDetector(
+                  onTap: () {
+                    if (currentCitation != null) {
+                      _shareService.shareText(
+                        currentCitation!.textForLocale(context),
+                      );
+                    }
+                  },
+                  child: Text(
+                    AppLocalizations.of(context)!.shareText,
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: const Color.fromRGBO(255, 255, 255, 1),
+                      shadows: [Shadow(blurRadius: 2, color: Colors.black26)],
+                    ),
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    isShare = true;
+                  });
+
+                  Future.delayed(Duration(milliseconds: 500), () {
+                    _captureAndShare();
+                  });
+
+                  Future.delayed(Duration(seconds: 2), () {
+                    setState(() {
+                      isShare = false;
+                    });
+                  });
+                },
+                child: Text(
+                  AppLocalizations.of(context)!.shareImage,
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
+                    shadows: [Shadow(blurRadius: 2, color: Colors.black26)],
+                  ),
+                ),
+              ),
+            ],
+          )
         : SizedBox.shrink();
   }
 }

@@ -6,8 +6,14 @@ class Citation {
   String id;
   String mood;
   Map<String, String> text;
+  String? author;
 
-  Citation({required this.id, required this.mood, required this.text});
+  Citation({
+    required this.id,
+    required this.mood,
+    required this.text,
+    this.author,
+  });
 
   // Convert Citation instance to a Map
 
@@ -19,11 +25,12 @@ class Citation {
       id: snapshot.id,
       mood: data?['mood'],
       text: Map<String, String>.from(data?['text']),
+      author: data?['author'],
     );
   }
 
   Map<String, dynamic> toFirestore() {
-    return {'mood': mood, 'text': text};
+    return {'mood': mood, 'text': text, 'author': author};
   }
 }
 
@@ -45,6 +52,7 @@ class CitationHelper {
           id: doc.id,
           mood: data['mood'],
           text: Map<String, String>.from(data['text']),
+          author: data['author'],
         );
       }).toList();
     } catch (e) {
@@ -60,7 +68,7 @@ class CitationHelper {
     try {
       final QuerySnapshot snapshot = await _firestore
           .collection(collectionPath)
-          .where('mood', isEqualTo: mood)
+          .where('mood', isEqualTo: mood.toLowerCase())
           .get();
 
       return snapshot.docs.map((doc) {
@@ -69,6 +77,7 @@ class CitationHelper {
           id: doc.id,
           mood: data['mood'],
           text: Map<String, String>.from(data['text']),
+          author: data['author'],
         );
       }).toList();
     } catch (e) {
@@ -93,6 +102,7 @@ class CitationHelper {
           id: doc.id,
           mood: data['mood'],
           text: Map<String, String>.from(data['text']),
+          author: data['author'],
         );
       }
       return null;

@@ -160,7 +160,7 @@ abstract class AppLocalizations {
   /// No description provided for @gradientEditor.
   ///
   /// In en, this message translates to:
-  /// **'Change gradient'**
+  /// **'Colors'**
   String get gradientEditor;
 
   /// No description provided for @fontEditor.

@@ -18,30 +18,47 @@ class _RecentState extends State<Recent> {
     return Scaffold(
       appBar: AppBar(title: Text('Recent Edits')),
       body: FutureBuilder(
-        future: citationList.getList(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else {
-            final citations = snapshot.data as List<String>;
-            if (citations.isEmpty) {
-              return Center(child: Text('No recent edits found.'));
-            }
-            final maxItems = citations.length > 10 ? 10 : citations.length;
-            return ListView.builder(
-              itemCount: maxItems + (maxItems ~/ 4), // Add extra slots for ads
-              itemBuilder: (context, index) {
-                // Calculate the actual index in the citations list
-                final itemIndex = index - (index ~/ 5);
+        future: citationList.getFavoriteCitationList(),
+        builder: (context, asyncSnapshot) {
+          final citations = asyncSnapshot.data;
+          if (asyncSnapshot.connectionState == ConnectionState.waiting) {
+            return CircularProgressIndicator.adaptive();
+          }
+          if (!asyncSnapshot.hasData || asyncSnapshot.hasError) {
+            return Center(
+              child: Text(
+                'No data found.',
+                style: TextStyle(fontSize: 18, color: Colors.grey),
+              ),
+            );
+          }
+          if (citations == null || citations.isEmpty) {
+            return Center(
+              child: Text(
+                'No favorite citations available.',
+                style: TextStyle(fontSize: 18, color: Colors.grey),
+              ),
+            );
+          }
+          final setCitation = citations.toSet().toList();
+          final maxItems = setCitation.length > 10 ? 10 : setCitation.length;
+          return ListView.builder(
+            itemCount: maxItems + (maxItems ~/ 4), // Add extra slots for ads
+            itemBuilder: (context, index) {
+              // Calculate the actual index in the citations list
+              final itemIndex = index - (index ~/ 5);
 
-                // Insert banner ad after every 4 items
-                if ((index + 1) % 5 == 0) {
-                  return BannerAdWidget();
-                }
+              // Insert banner ad after every 4 items
+              if ((index + 1) % 5 == 0) {
+                return BannerAdWidget();
+              }
 
-                return Container(
+              return Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14.0,
+                  vertical: 12.0,
+                ),
+                child: Container(
                   padding: EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
@@ -53,7 +70,7 @@ class _RecentState extends State<Recent> {
                       ),
                     ],
                     gradient: LinearGradient(
-                      colors: [Colors.grey.shade50, Colors.grey.shade200],
+                      colors: [Colors.blue.shade50, Colors.grey.shade200],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -63,16 +80,18 @@ class _RecentState extends State<Recent> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(Icons.lightbulb_outline_rounded, size: 16),
+                      SizedBox(height: 8),
                       Text(
-                        citations[itemIndex],
+                        setCitation[itemIndex],
                         style: TextStyle(
                           fontSize: 18,
                           fontFamily: 'Montserrat',
                           fontWeight: FontWeight.w700,
                         ),
                       ),
+                      SizedBox(height: 12),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           TextButton(
                             onPressed: () {
@@ -80,16 +99,17 @@ class _RecentState extends State<Recent> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => DisplayCitation(
-                                    citationText: citations[itemIndex],
+                                    citationText: setCitation[itemIndex],
                                   ),
                                 ),
                               );
                             },
                             child: Text('Edit'),
                           ),
+                          SizedBox(width: 8),
                           TextButton(
                             onPressed: () {
-                              citationList.remove(citations[itemIndex]);
+                              citationList.remove(setCitation[itemIndex]);
                             },
                             child: Text('Delete'),
                           ),
@@ -97,12 +117,24 @@ class _RecentState extends State<Recent> {
                       ),
                     ],
                   ),
-                );
-              },
-            );
-          }
+                ),
+              );
+            },
+          );
         },
       ),
     );
   }
 }
+
+  // Méthode simulée pour envoyer un feedback
+  // void _sendFeedback(BuildContext context) {
+  //   // Ici, vous ouvririez un email client ou un formulaire in-app
+  //   ScaffoldMessenger.of(context).showSnackBar(
+  //     const SnackBar(content: Text('Ouvrir la boîte de dialogue de feedback')),
+  //   );
+  //   if (kDebugMode) {
+  //     print("Ouvrir la boîte de dialogue de feedback");
+  //   }
+  // }
+

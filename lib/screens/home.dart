@@ -16,7 +16,7 @@ class _HomeState extends State<Home> {
 
   void _onNavTap(int index) => setState(() => _selectedIndex = index);
 
-  final pages = <Widget>[MyHomePage(), Favorite(), Recent(), SettingsPage()];
+  final pages = <Widget>[MyHomePage(), Recent(), Favorite(), SettingsPage()];
 
   @override
   Widget build(BuildContext context) {
@@ -25,8 +25,10 @@ class _HomeState extends State<Home> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onNavTap,
-        selectedItemColor: Theme.of(context).primaryColor,
-        unselectedItemColor: Colors.black54,
+        selectedItemColor: Theme.of(context).colorScheme.onSurface.withValues(),
+        unselectedItemColor: Theme.of(
+          context,
+        ).colorScheme.onSurface.withValues(alpha: 0.54),
         type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Accueil'),

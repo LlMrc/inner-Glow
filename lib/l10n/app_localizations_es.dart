@@ -39,7 +39,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get shareImage => 'Compartir imagen';
 
   @override
-  String get gradientEditor => 'Cambiar gradiente';
+  String get gradientEditor => 'Colors';
 
   @override
   String get fontEditor => 'Fuente';

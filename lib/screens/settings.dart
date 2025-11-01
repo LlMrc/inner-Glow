@@ -4,6 +4,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nodus_application/l10n/app_localizations.dart';
+import 'package:nodus_application/widgets/rate_us.dart';
 import 'package:nodus_application/widgets/switch_theme.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -18,27 +19,6 @@ class SettingsPage extends StatelessWidget {
     if (kDebugMode) {
       print("Naviguer vers la page Premium");
     }
-  }
-
-  // Méthode simulée pour envoyer un feedback
-  void _sendFeedback(BuildContext context) {
-    // Ici, vous ouvririez un email client ou un formulaire in-app
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Ouvrir la boîte de dialogue de feedback')),
-    );
-    if (kDebugMode) {
-      print("Ouvrir la boîte de dialogue de feedback");
-    }
-  }
-
-  // Méthode simulée pour ouvrir les termes et services
-  void _openTermsAndServices(BuildContext context) {
-    // Navigator.push(context, MaterialPageRoute(builder: (context) => TermsAndServicesPage()));
-    // Ou ouvrir un lien web avec `url_launcher`
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Ouvrir les termes et services')),
-    );
-    print("Ouvrir les termes et services");
   }
 
   @override
@@ -173,22 +153,9 @@ class SettingsPage extends StatelessWidget {
                 //   trailing: DropdownButton<Locale>( /* Votre DropdownButton ici */ ),
                 //   onTap: () { /* Ouvre la sélection de langue ou navigue */ },
                 // ),
-                ListTile(
-                  leading: const Icon(Icons.notifications),
-                  title: const Text(
-                    'Notifications',
-                  ), // AppLocalizations.of(context)!.notifications
-                  trailing: Switch(
-                    value:
-                        true, // Remplacez par l'état réel de vos notifications
-                    onChanged: (bool value) {
-                      // Logique pour activer/désactiver les notifications
-
-                      print("Notifications: $value");
-                    },
-                  ),
-                ),
                 ThemeSwitcher(), // AppLocalizations.of(context)!.darkMode
+                RateUsWidget(),
+                SizedBox(height: 12),
               ],
             ),
           ),
@@ -213,7 +180,7 @@ class SettingsPage extends StatelessWidget {
                   title: Text(
                     AppLocalizations.of(context)!.sendFeedback,
                   ), // AppLocalizations.of(context)!.sendFeedback
-                  onTap: () => _sendFeedback(context),
+                  onTap: () => _showFeedbackBottomSheet(context),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 18),
                 ),
                 ListTile(
@@ -221,14 +188,14 @@ class SettingsPage extends StatelessWidget {
                   title: Text(
                     AppLocalizations.of(context)!.termsAndServices,
                   ), // AppLocalizations.of(context)!.termsAndServices
-                  onTap: () => _openTermsAndServices(context),
+                  onTap: () => _showTermsServicesBottomSheet(context),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 18),
                 ),
                 ListTile(
                   leading: const Icon(Icons.privacy_tip),
                   title: Text(AppLocalizations.of(context)!.privacyPolicy),
                   onTap: () {
-                    // _openPrivacyPolicy(context);
+                    _showTermsBottomSheet(context);
                     if (kDebugMode) {
                       print("Ouvrir la politique de confidentialité");
                     }
@@ -239,10 +206,7 @@ class SettingsPage extends StatelessWidget {
                   leading: const Icon(Icons.info),
                   title: Text(AppLocalizations.of(context)!.aboutApp),
                   onTap: () {
-                    // _openAboutApp(context);
-                    if (kDebugMode) {
-                      print("Ouvrir la page 'À Propos'");
-                    }
+                    _showTermsBottomSheet(context);
                   },
                   trailing: const Icon(Icons.arrow_forward_ios, size: 18),
                 ),
@@ -250,6 +214,150 @@ class SettingsPage extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showTermsBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => DraggableScrollableSheet(
+        expand: false,
+        builder: (context, scrollController) => Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SingleChildScrollView(
+            controller: scrollController,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Terms & Privacy',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 16),
+                Text('''
+By using this app, you agree to the following terms and conditions. We value your privacy and are committed to protecting your personal information. 
+
+1. **Data Collection**: We may collect usage data to improve the app experience.
+2. **Third-Party Services**: Some features may rely on third-party services.
+3. **User Responsibility**: You are responsible for maintaining the confidentiality of your account.
+4. **Changes to Terms**: We reserve the right to update these terms at any time.
+
+For full details, please visit our website or contact support.
+                ''', style: TextStyle(fontSize: 16)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Méthode simulée pour ouvrir les termes et services
+  void _showFeedbackBottomSheet(BuildContext context) {
+    final TextEditingController feedbackController = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+          left: 16,
+          right: 16,
+          top: 24,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'We’d love your feedback!',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 12),
+            TextField(
+              controller: feedbackController,
+              maxLines: 5,
+              decoration: InputDecoration(
+                hintText: 'Tell us what you think...',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                String feedback = feedbackController.text.trim();
+                if (feedback.isNotEmpty) {
+                  // Handle feedback submission logic here
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Thank you for your feedback!')),
+                  );
+                }
+              },
+              child: Text('Submit'),
+            ),
+            SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  //terms and services bottom sheet
+  void _showTermsServicesBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => DraggableScrollableSheet(
+        expand: false,
+        builder: (context, scrollController) => Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SingleChildScrollView(
+            controller: scrollController,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Terms & Services',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 16),
+                Text('''
+By using this app, you agree to the following terms and services:
+
+📜 **Terms of Use**
+- You must be at least 13 years old to use this app.
+- You agree not to misuse or attempt to disrupt the app’s functionality.
+- We reserve the right to suspend accounts that violate our policies.
+
+🛠️ **Services Provided**
+- Real-time notifications and updates.
+- Cloud-based data sync across devices.
+- Offline access to essential features.
+- Personalized content based on your preferences.
+
+🔒 **Privacy & Data**
+- We collect minimal data to improve your experience.
+- Your information is never sold to third parties.
+- You can manage your data preferences in settings.
+
+These terms may be updated periodically. Continued use of the app implies acceptance of any changes.
+                ''', style: TextStyle(fontSize: 16)),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
