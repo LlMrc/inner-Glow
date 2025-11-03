@@ -19,116 +19,134 @@ class _FavoriteState extends State<Favorite> {
     super.initState();
   }
 
+  Future<void> initFavoriteList() async {
+    await favoriteCitationList.getFavoriteCitationList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Favorite Citations')),
-      body: FutureBuilder(
-        future: favoriteCitationList.getFavoriteCitationList(),
-        builder: (context, asyncSnapshot) {
-          final citations = asyncSnapshot.data;
-          if (asyncSnapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator.adaptive();
-          }
-          if (!asyncSnapshot.hasData || asyncSnapshot.hasError) {
-            return Center(
-              child: Text(
-                'No data found.',
-                style: TextStyle(fontSize: 18, color: Colors.grey),
-              ),
-            );
-          }
-          if (citations == null || citations.isEmpty) {
-            return Center(
-              child: Text(
-                'No favorite citations available.',
-                style: TextStyle(fontSize: 18, color: Colors.grey),
-              ),
-            );
-          }
-          final setCitation = citations.toSet().toList();
-          final maxItems = setCitation.length > 10 ? 10 : setCitation.length;
-          return ListView.builder(
-            itemCount: maxItems + (maxItems ~/ 4), // Add extra slots for ads
-            itemBuilder: (context, index) {
-              // Calculate the actual index in the citations list
-              final itemIndex = index - (index ~/ 5);
-
-              // Insert banner ad after every 4 items
-              if ((index + 1) % 5 == 0) {
-                return BannerAdWidget();
+      body: Stack(
+        alignment: Alignment.bottomCenter,
+        children: [
+          FutureBuilder(
+            future: favoriteCitationList.getFavoriteCitationList(),
+            builder: (context, asyncSnapshot) {
+              final citations = asyncSnapshot.data;
+              if (asyncSnapshot.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator.adaptive();
               }
-
-              return Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 10,
-                ),
-                child: Container(
-                  padding: EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 4,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
-                    gradient: LinearGradient(
-                      colors: [Colors.deepPurple.shade50, Colors.pink.shade100],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
+              if (!asyncSnapshot.hasData || asyncSnapshot.hasError) {
+                return Center(
+                  child: Text(
+                    'No data found.',
+                    style: TextStyle(fontSize: 18, color: Colors.grey),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.lightbulb_outline_rounded, size: 16),
-                      SizedBox(height: 8),
-                      Text(
-                        setCitation[itemIndex],
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w700,
+                );
+              }
+              if (citations == null || citations.isEmpty) {
+                return Center(
+                  child: Text(
+                    'No favorite citations available.',
+                    style: TextStyle(fontSize: 18, color: Colors.grey),
+                  ),
+                );
+              }
+              final setCitation = citations.toSet().toList();
+              final maxItems = setCitation.length > 10
+                  ? 10
+                  : setCitation.length;
+              return ListView.builder(
+                itemCount:
+                    maxItems + (maxItems ~/ 4), // Add extra slots for ads
+                itemBuilder: (context, index) {
+                  // Calculate the actual index in the citations list
+                  final itemIndex = index - (index ~/ 5);
+
+                  // Insert banner ad after every 4 items
+                  if ((index + 1) % 5 == 0) {
+                    return BannerAdWidget();
+                  }
+
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 10,
+                    ),
+                    child: Card(
+                      elevation: 4,
+                      child: Container(
+                        padding: EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.favorite_border_outlined,
+                              size: 16,
+                              color: Colors.deepPurpleAccent,
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              setCitation[itemIndex],
+                              style: TextStyle(
+                                color: Colors.black54,
+                                fontSize: 18,
+                                fontFamily: 'Montserrat',
+                                fontWeight: FontWeight.w300,
+                              ),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => DisplayCitation(
+                                          citationText: setCitation[itemIndex],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: Text('Edit'),
+                                ),
+                                SizedBox(width: 8),
+                                TextButton(
+                                  onPressed: () async {
+                                    await favoriteCitationList
+                                        .removeFavoriteCitation(
+                                          setCitation[itemIndex],
+                                        );
+
+                                    setState(() {});
+                                  },
+                                  child: Text('Delete'),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => DisplayCitation(
-                                    citationText: setCitation[itemIndex],
-                                  ),
-                                ),
-                              );
-                            },
-                            child: Text('Edit'),
-                          ),
-                          SizedBox(width: 8),
-                          TextButton(
-                            onPressed: () {
-                              favoriteCitationList.remove(
-                                setCitation[itemIndex],
-                              );
-                            },
-                            child: Text('Delete'),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+                    ),
+                  );
+                },
               );
             },
-          );
-        },
+          ),
+          IconButton(
+            onPressed: () async {
+              await initFavoriteList();
+              setState(() {});
+            },
+            icon: Icon(Icons.refresh, size: 34),
+          ),
+        ],
       ),
     );
   }

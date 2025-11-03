@@ -27,10 +27,11 @@ class SettingsPage extends StatelessWidget {
     // Pour cet exemple, j'utilise des chaînes littérales
     final bool isPremiumUser =
         false; // Remplacez par votre logique de vérification Premium
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.settingsTitle),
+        title: Text(l10n.settingsTitle),
         backgroundColor: Theme.of(
           context,
         ).colorScheme.primary, // Couleur de votre thème
@@ -61,8 +62,8 @@ class SettingsPage extends StatelessWidget {
                   children: [
                     Text(
                       isPremiumUser == true
-                          ? AppLocalizations.of(context)!.premiumActive
-                          : AppLocalizations.of(context)!.premiumInactive,
+                          ? l10n.premiumActive
+                          : l10n.premiumInactive,
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
@@ -89,9 +90,7 @@ class SettingsPage extends StatelessWidget {
                       ElevatedButton.icon(
                         onPressed: () => _navigateToPremiumPage(context),
                         icon: const Icon(Icons.workspace_premium),
-                        label: Text(
-                          AppLocalizations.of(context)!.premiumButton,
-                        ),
+                        label: Text(l10n.premiumButton),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Theme.of(
                             context,
@@ -114,7 +113,7 @@ class SettingsPage extends StatelessWidget {
                       ),
                     ] else ...[
                       Text(
-                        AppLocalizations.of(context)!.premiumActiveDescription,
+                        l10n.premiumActiveDescription,
                         style: TextStyle(
                           fontSize: 16,
                           color: Theme.of(context)

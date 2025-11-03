@@ -11,7 +11,6 @@ import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  StringListDatabaseHelper().init();
   await Firebase.initializeApp();
   MobileAds.instance.initialize();
   runApp(
@@ -39,15 +38,6 @@ class MyApp extends StatelessWidget {
           home: Home(),
         );
       },
-      // child: MaterialApp(
-      //   title: 'Glow',
-      //   theme: ThemeData(
-      //     colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      //   ),
-      //   localizationsDelegates: AppLocalizations.localizationsDelegates,
-      //   supportedLocales: AppLocalizations.supportedLocales,
-      //   home: Home(),
-      // ),
     );
   }
 }
@@ -279,7 +269,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                   _,
                                 ) {
                                   _shuffleCitation(citations);
-                                  print('citation length: ${citations.length}');
                                 });
                               }
                             }
@@ -296,9 +285,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
                             style: TextStyle(
                               color: Colors.white70,
-                              fontSize: 24,
+
                               fontStyle: FontStyle.italic,
-                              fontWeight: FontWeight.w800,
+                              fontSize: 18,
                             ),
                             textAlign: TextAlign.center,
                           );
@@ -317,8 +306,11 @@ class _MyHomePageState extends State<MyHomePage> {
                           onPressed: () {
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (_) =>
-                                    DisplayCitation(mood: l10n.dailyQuote),
+                                builder: (_) => DisplayCitation(
+                                  citationText: currentCitation!.textForLocale(
+                                    context,
+                                  ),
+                                ),
                               ),
                             );
                           },
@@ -331,8 +323,10 @@ class _MyHomePageState extends State<MyHomePage> {
                             shadowColor: Colors.transparent,
                             backgroundColor: Colors.white,
                           ),
-                          onPressed: () {
-                            favoriteCitationList.add(l10n.dailyQuote);
+                          onPressed: () async {
+                            await favoriteCitationList.addFavoriteCitation(
+                              currentCitation!.textForLocale(context),
+                            );
                             setState(() => _isFavorite = true);
                           },
                           label: Text(l10n.addToFavorites),
@@ -371,7 +365,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.2),
+              color: Colors.black.withValues(alpha: 0.2),
               blurRadius: 6,
               offset: Offset(0, 3),
             ),

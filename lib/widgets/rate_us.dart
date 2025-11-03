@@ -9,13 +9,13 @@ class RateUsWidget extends StatefulWidget {
 }
 
 class _RateUsWidgetState extends State<RateUsWidget> {
-  void openPlayStore() async {
-    const url =
-        'https://play.google.com/store/apps/details?id=com.innerglow.gravitylab';
-    if (await canLaunchUrl(Uri(path: url))) {
-      await launchUrl(Uri(path: url));
-    } else {
-      throw 'Could not launch $url';
+  final Uri _url = Uri.parse(
+    'https://play.google.com/store/apps/details?id=com.innerglow.gravitylab',
+  );
+
+  Future<void> _launchUrl() async {
+    if (!await launchUrl(_url)) {
+      throw Exception('Could not launch $_url');
     }
   }
 
@@ -23,7 +23,7 @@ class _RateUsWidgetState extends State<RateUsWidget> {
 
   void _submitRating() {
     // Handle rating submission logic here
-    openPlayStore();
+    _launchUrl();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Thanks for rating us $_rating stars!')),
     );

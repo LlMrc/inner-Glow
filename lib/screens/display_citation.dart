@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nodus_application/l10n/app_localizations.dart';
+import 'package:nodus_application/local/database_helper.dart';
 import 'package:nodus_application/models/citation_model.dart';
 import 'package:nodus_application/services/google_ads_heleper.dart';
 import 'package:nodus_application/services/screenshot_service.dart';
@@ -97,6 +98,7 @@ class _DisplayCitationState extends State<DisplayCitation> {
   }
 
   final GoogleAdsHelper _adsHelper = GoogleAdsHelper();
+
   @override
   void initState() {
     _adsHelper.loadInterstitialAd();
@@ -117,40 +119,147 @@ class _DisplayCitationState extends State<DisplayCitation> {
           Expanded(
             child: Screenshot(
               controller: screenshotController,
-              child: FutureBuilder<List<Citation>>(
-                future: citationHelper.getCitationsByMood(
-                  widget.mood!.toLowerCase(),
-                ),
-                builder: (context, asyncSnapshot) {
-                  if (asyncSnapshot.connectionState ==
-                      ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  } else if (asyncSnapshot.hasError) {
-                    return Center(child: Text('Error: ${asyncSnapshot.error}'));
-                  } else {
-                    final citations = asyncSnapshot.data as List<Citation>;
-                    if (citations.isEmpty) {
-                      return Center(child: Text('No citations found.'));
-                    }
-                    // Initialiser la citation courante si pas encore fait
-                    if (currentCitation == null) {
-                      if (asyncSnapshot.hasData) {
-                        if (currentCitation == null && asyncSnapshot.hasData) {
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            _shuffleCitation(citations);
-                            print('citation length: ${citations.length}');
-                          });
+              child: (widget.mood) != null
+                  ? FutureBuilder<List<Citation>>(
+                      future: citationHelper.getCitationsByMood(
+                        widget.mood!.toLowerCase(),
+                      ),
+                      builder: (context, asyncSnapshot) {
+                        if (asyncSnapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(child: CircularProgressIndicator());
+                        } else if (asyncSnapshot.hasError) {
+                          return Center(
+                            child: Text('Error: ${asyncSnapshot.error}'),
+                          );
+                        } else {
+                          final citations =
+                              asyncSnapshot.data as List<Citation>;
+                          if (citations.isEmpty) {
+                            return Center(child: Text('No citations found.'));
+                          }
+                          // Initialiser la citation courante si pas encore fait
+                          if (currentCitation == null) {
+                            if (asyncSnapshot.hasData) {
+                              if (currentCitation == null &&
+                                  asyncSnapshot.hasData) {
+                                WidgetsBinding.instance.addPostFrameCallback((
+                                  _,
+                                ) {
+                                  _shuffleCitation(citations);
+                                });
+                              }
+                            }
+                          }
+                          // Vérifier si on a une citation
+                          if (currentCitation == null) {
+                            return Center(
+                              child: Text('No citation available.'),
+                            );
+                          }
+
+                          return Stack(
+                            alignment: AlignmentGeometry.bottomCenter,
+                            children: [
+                              widget.citationText == null
+                                  ? CitationView(
+                                      text: currentCitation!.textForLocale(
+                                        context,
+                                      ),
+                                      fontFamily:
+                                          fontFamilies[selectedFontIndex],
+                                      gradient: gradients[currentIndex],
+                                      backgroundImage:
+                                          backgroundImages[selectedBackgroundIndex],
+                                    )
+                                  : CitationView(
+                                      text: widget.citationText!,
+                                      fontFamily:
+                                          fontFamilies[selectedFontIndex],
+                                      gradient: gradients[currentIndex],
+                                      backgroundImage:
+                                          backgroundImages[selectedBackgroundIndex],
+                                    ),
+
+                              Positioned(
+                                bottom: 100,
+                                child: !isShare
+                                    ? IconButton(
+                                        onPressed: () {
+                                          if (asyncSnapshot.hasData) {
+                                            _shuffleCitation(
+                                              asyncSnapshot.data!,
+                                            );
+                                          }
+                                        },
+                                        icon: Icon(
+                                          Icons.refresh,
+                                          color: Colors.white,
+                                          size: 40,
+                                        ),
+                                      )
+                                    : SizedBox.shrink(),
+                              ),
+
+                              // Boutons d'édition (hors capture)
+                              (isShare == false)
+                                  ? Positioned(
+                                      bottom: 10,
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          _buildEditor(
+                                            icon: Icon(
+                                              Icons.color_lens,
+                                              color: Colors.grey.shade200,
+                                              size: 34,
+                                            ),
+                                            text: l10n!.gradientEditor,
+                                            onTap: () => setState(() {
+                                              selectedBackgroundIndex = 0;
+                                              selectedIndex = 0;
+                                            }),
+                                          ),
+                                          _buildEditor(
+                                            icon: Icon(
+                                              Icons.font_download,
+                                              color: Colors.grey.shade200,
+                                              size: 34,
+                                            ),
+                                            text: l10n.fontEditor,
+                                            onTap: () => setState(
+                                              () => selectedIndex = 1,
+                                            ),
+                                          ),
+                                          _buildEditor(
+                                            icon: Icon(
+                                              Icons.image,
+                                              color: Colors.grey.shade200,
+                                              size: 34,
+                                            ),
+                                            text: l10n.backgroundEditor,
+                                            onTap: () => setState(
+                                              () => selectedIndex = 2,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  : SizedBox.shrink(),
+                              Positioned(
+                                top: 60,
+                                right: 10,
+                                child: _saveButton(context),
+                              ),
+                            ],
+                          );
                         }
-                      }
-                    }
-                    // Vérifier si on a une citation
-                    if (currentCitation == null) {
-                      return Center(child: Text('No citation available.'));
-                    }
-                    print(
-                      'Printint images ${backgroundImages[selectedBackgroundIndex]}',
-                    );
-                    return Stack(
+                      },
+                    )
+                  : Stack(
                       alignment: AlignmentGeometry.bottomCenter,
                       children: [
                         widget.citationText == null
@@ -168,24 +277,6 @@ class _DisplayCitationState extends State<DisplayCitation> {
                                 backgroundImage:
                                     backgroundImages[selectedBackgroundIndex],
                               ),
-
-                        Positioned(
-                          bottom: 100,
-                          child: !isShare
-                              ? IconButton(
-                                  onPressed: () {
-                                    if (asyncSnapshot.hasData) {
-                                      _shuffleCitation(asyncSnapshot.data!);
-                                    }
-                                  },
-                                  icon: Icon(
-                                    Icons.refresh,
-                                    color: Colors.white,
-                                    size: 40,
-                                  ),
-                                )
-                              : SizedBox.shrink(),
-                        ),
 
                         // Boutons d'édition (hors capture)
                         (isShare == false)
@@ -215,10 +306,8 @@ class _DisplayCitationState extends State<DisplayCitation> {
                                         size: 34,
                                       ),
                                       text: l10n.fontEditor,
-                                      onTap: () => setState(() {
-                                        selectedIndex = 1;
-                                        selectedBackgroundIndex = 0;
-                                      }),
+                                      onTap: () =>
+                                          setState(() => selectedIndex = 1),
                                     ),
                                     _buildEditor(
                                       icon: Icon(
@@ -234,12 +323,13 @@ class _DisplayCitationState extends State<DisplayCitation> {
                                 ),
                               )
                             : SizedBox.shrink(),
-                        Positioned(top: 60, right: 10, child: _saveButton()),
+                        Positioned(
+                          top: 60,
+                          right: 10,
+                          child: _saveButton(context),
+                        ),
                       ],
-                    );
-                  }
-                },
-              ),
+                    ),
             ),
           ),
 
@@ -371,20 +461,34 @@ class _DisplayCitationState extends State<DisplayCitation> {
     );
   }
 
-  Widget _saveButton() {
+  final saveRecentCitation = StringListDatabaseHelper();
+
+  Widget _saveButton(context) {
     return !isShare
         ? Column(
             spacing: 20,
             mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(
-                //  AppLocalizations.of(context)!.saveText,
-                'Save',
-                style: TextStyle(
-                  fontSize: 20,
-                  color: Colors.white,
-                  shadows: [Shadow(blurRadius: 2, color: Colors.black26)],
+              GestureDetector(
+                onTap: () async {
+                  if (currentCitation != null) {
+                    saveRecentCitation.add(
+                      currentCitation!.textForLocale(context),
+                    );
+                  }
+                  Future.delayed(Durations.medium1, () {
+                    _adsHelper.showInterstitialAd();
+                  });
+                },
+                child: Text(
+                  // AppLocalizations.of(context)!.saveText,
+                  'Save',
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
+                    shadows: [Shadow(blurRadius: 2, color: Colors.black26)],
+                  ),
                 ),
               ),
               GestureDetector(
@@ -398,6 +502,14 @@ class _DisplayCitationState extends State<DisplayCitation> {
                       isShare = false;
                     });
                   });
+                  if (currentCitation != null) {
+                    saveRecentCitation.add(
+                      currentCitation!.textForLocale(context),
+                    );
+                  }
+                  Future.delayed(Durations.medium1, () {
+                    _adsHelper.showInterstitialAd();
+                  });
                 },
                 child: GestureDetector(
                   onTap: () {
@@ -405,7 +517,13 @@ class _DisplayCitationState extends State<DisplayCitation> {
                       _shareService.shareText(
                         currentCitation!.textForLocale(context),
                       );
+                      saveRecentCitation.add(
+                        currentCitation!.textForLocale(context),
+                      );
                     }
+                    Future.delayed(Durations.medium1, () {
+                      _adsHelper.showInterstitialAd();
+                    });
                   },
                   child: Text(
                     AppLocalizations.of(context)!.shareText,
@@ -419,6 +537,11 @@ class _DisplayCitationState extends State<DisplayCitation> {
               ),
               GestureDetector(
                 onTap: () {
+                  if (currentCitation != null) {
+                    saveRecentCitation.add(
+                      currentCitation!.textForLocale(context),
+                    );
+                  }
                   setState(() {
                     isShare = true;
                   });

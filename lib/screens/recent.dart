@@ -13,115 +13,133 @@ class Recent extends StatefulWidget {
 class _RecentState extends State<Recent> {
   final citationList = StringListDatabaseHelper.instance;
 
+  Future<void> initCitationList() async {
+    await citationList.getList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Recent Edits')),
-      body: FutureBuilder(
-        future: citationList.getFavoriteCitationList(),
-        builder: (context, asyncSnapshot) {
-          final citations = asyncSnapshot.data;
-          if (asyncSnapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator.adaptive();
-          }
-          if (!asyncSnapshot.hasData || asyncSnapshot.hasError) {
-            return Center(
-              child: Text(
-                'No data found.',
-                style: TextStyle(fontSize: 18, color: Colors.grey),
-              ),
-            );
-          }
-          if (citations == null || citations.isEmpty) {
-            return Center(
-              child: Text(
-                'No favorite citations available.',
-                style: TextStyle(fontSize: 18, color: Colors.grey),
-              ),
-            );
-          }
-          final setCitation = citations.toSet().toList();
-          final maxItems = setCitation.length > 10 ? 10 : setCitation.length;
-          return ListView.builder(
-            itemCount: maxItems + (maxItems ~/ 4), // Add extra slots for ads
-            itemBuilder: (context, index) {
-              // Calculate the actual index in the citations list
-              final itemIndex = index - (index ~/ 5);
-
-              // Insert banner ad after every 4 items
-              if ((index + 1) % 5 == 0) {
-                return BannerAdWidget();
+      body: Stack(
+        alignment: Alignment.bottomCenter,
+        children: [
+          FutureBuilder(
+            future: citationList.getList(),
+            builder: (context, asyncSnapshot) {
+              final citations = asyncSnapshot.data;
+              if (asyncSnapshot.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator.adaptive();
               }
-
-              return Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14.0,
-                  vertical: 12.0,
-                ),
-                child: Container(
-                  padding: EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 4,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
-                    gradient: LinearGradient(
-                      colors: [Colors.blue.shade50, Colors.grey.shade200],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
+              if (!asyncSnapshot.hasData || asyncSnapshot.hasError) {
+                return Center(
+                  child: Text(
+                    'No data found.',
+                    style: TextStyle(fontSize: 18, color: Colors.grey),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.lightbulb_outline_rounded, size: 16),
-                      SizedBox(height: 8),
-                      Text(
-                        setCitation[itemIndex],
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w700,
+                );
+              }
+              if (citations == null || citations.isEmpty) {
+                return Center(
+                  child: Text(
+                    'No citations available.',
+                    style: TextStyle(fontSize: 18, color: Colors.grey),
+                  ),
+                );
+              }
+              final setCitation = citations.toSet().toList();
+              final maxItems = setCitation.length > 10
+                  ? 10
+                  : setCitation.length;
+              return ListView.builder(
+                itemCount:
+                    maxItems + (maxItems ~/ 4), // Add extra slots for ads
+                itemBuilder: (context, index) {
+                  // Calculate the actual index in the citations list
+                  final itemIndex = index - (index ~/ 5);
+
+                  // Insert banner ad after every 4 items
+                  if ((index + 1) % 5 == 0) {
+                    return BannerAdWidget();
+                  }
+
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14.0,
+                      vertical: 12.0,
+                    ),
+                    child: Card(
+                      elevation: 6,
+                      child: Container(
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.wb_sunny_rounded,
+                              color: Colors.red,
+                              size: 24,
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              maxLines: 3,
+                              setCitation[itemIndex],
+                              style: TextStyle(
+                                fontSize: 16,
+
+                                fontFamily: 'Montserrat',
+                              ),
+                            ),
+                            SizedBox(height: 12),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => DisplayCitation(
+                                          citationText: setCitation[itemIndex],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: Text('Edit'),
+                                ),
+                                SizedBox(width: 8),
+                                TextButton(
+                                  onPressed: () async {
+                                    await citationList.remove(
+                                      setCitation[itemIndex],
+                                    );
+                                    setState(() {});
+                                  },
+                                  child: Text('Delete'),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
-                      SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => DisplayCitation(
-                                    citationText: setCitation[itemIndex],
-                                  ),
-                                ),
-                              );
-                            },
-                            child: Text('Edit'),
-                          ),
-                          SizedBox(width: 8),
-                          TextButton(
-                            onPressed: () {
-                              citationList.remove(setCitation[itemIndex]);
-                            },
-                            child: Text('Delete'),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+                    ),
+                  );
+                },
               );
             },
-          );
-        },
+          ),
+          IconButton(
+            onPressed: () async {
+              await initCitationList();
+              setState(() {});
+            },
+            icon: Icon(Icons.refresh, size: 34),
+          ),
+        ],
       ),
     );
   }
