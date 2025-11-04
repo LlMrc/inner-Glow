@@ -100,9 +100,9 @@ class GoogleAdsHelper {
   GoogleAdsHelper._internal();
 
   static const String bannerAdUnitId =
-      'ca-app-pub-3940256099942544/6300978111'; // Test Banner ID
+      'ca-app-pub-39007806074550933/1026065964'; // Test Banner ID
   static const String interstitialAdUnitId =
-      'ca-app-pub-3940256099942544/1033173712'; // Test Interstitial ID
+      'ca-app-pub-3900780607450933/1409209347'; // Test Interstitial ID
 
   InterstitialAd? _interstitialAd;
   bool _isInterstitialAdReady = false;

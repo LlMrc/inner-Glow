@@ -94,7 +94,9 @@ class _FavoriteState extends State<Favorite> {
                             Text(
                               setCitation[itemIndex],
                               style: TextStyle(
-                                color: Colors.black54,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withOpacity(0.54),
                                 fontSize: 18,
                                 fontFamily: 'Montserrat',
                                 fontWeight: FontWeight.w300,
