@@ -1,128 +1,148 @@
 # Privacy Policy for Inner Glow
 
-*(Last updated: October 26, 2023)*
+*(Last updated: October 26, 2025)*
 
-Gravity lab ("us", "we", or "our") operates the Inner Glow mobile application (the "Service").
+Gravity leap we operates the Inner Glow mobile application (the "Service").
 
-This page informs you of our policies regarding the collection, use, and disclosure of personal data when you use our Service and the choices you have associated with that data.
+This page informs you of our policies regarding the collection and use of information when you use our Service.
 
-We use your data to provide and improve the Service. By using the Service, you agree to the collection and use of information in accordance with this policy. Unless otherwise defined in this Privacy Policy, terms used in this Privacy Policy have the same meanings as in our Terms and Conditions, accessible from Inner Glow.
+**Please note that Inner Glow is designed to provide its functionalities WITHOUT directly collecting Personal Data (information that can identify you personally).**
 
----
+However, as described below, non-personal information and device identifiers are collected by integrated third-party services for advertising operations and application analytics.
 
-## 1. Information Collection And Use
-
-We collect several different types of information for various purposes to provide and improve our Service to you.
-
-### Types of Data Collected
-
-* **Personal Data:** While using our Service, we may ask you to provide us with certain personally identifiable information that can be used to contact or identify you ("Personal Data"). Personally identifiable information may include, but is not limited to:
-    * Email address (if you create an account)
-    * Usage Data
-    * *(Add any other direct personal data collected, e.g., name if applicable)*
-
-* **Usage Data:** We may also collect information about how the Service is accessed and used ("Usage Data"). This Usage Data may include information such as your device's Internet Protocol address (e.g. IP address), device type, operating system version, unique device identifiers and other diagnostic data.
-
-* **Tracking & Cookies Data:** We use cookies and similar tracking technologies to track the activity on our Service and hold certain information.
-    * Cookies are files with small amount of data which may include an anonymous unique identifier. Cookies are sent to your browser from a website and stored on your device.
-    * Tracking technologies also used are beacons, tags, and scripts to collect and track information and to improve and analyze our Service.
-    * You can instruct your browser to refuse all cookies or to indicate when a cookie is being sent. However, if you do not accept cookies, you may not be able to use some portions of our Service.
+By using the Service, you agree to the collection and use of information in accordance with this policy.
 
 ---
 
-## 2. Use of Data
+## 1. Information Collection and Use
 
-GRAVITY LAB uses the collected data for various purposes:
+**We do NOT collect any Personal Data (information that can identify you personally) directly from you.** You are not required to create an account, provide your name, email address, or any other information that could directly identify you to use Inner Glow.
 
-* To provide and maintain the Service
-* To notify you about changes to our Service
-* To allow you to participate in interactive features of our Service when you choose to do so
-* To provide customer care and support
-* To provide analysis or valuable information so that we can improve the Service
-* To monitor the usage of the Service
-* To detect, prevent and address technical issues
-* To process your subscriptions and in-app purchases.
+### Types of Data Collected (via Third-Party Services)
 
----
+Our application integrates third-party services that may collect certain types of data, as detailed below. This data is used to provide advertisements, improve the application and its performance, and does not allow us to directly identify you as an individual.
 
-## 3. Transfer Of Data
-
-Your information, including Personal Data, may be transferred to — and maintained on — computers located outside of your state, province, country or other governmental jurisdiction where the data protection laws may differ than those from your jurisdiction.
-
-If you are located outside [Your Country] and choose to provide information to us, please note that we transfer the data, including Personal Data, to [Your Country] and process it there.
-
-Your consent to this Privacy Policy followed by your submission of such information represents your agreement to that transfer.
-
-[Your Company/Your Name] will take all steps reasonably necessary to ensure that your data is treated securely and in accordance with this Privacy Policy and no transfer of your Personal Data will take place to an organization or a country unless there are adequate controls in place including the security of your data and other personal information.
+* **Device Identifiers:** Unique identifiers associated with your mobile device (such as your device's advertising ID - ADID on Android, IDFA on iOS). These identifiers may be used by advertising and analytics services to distinguish devices and deliver personalized advertisements.
+* **Application Usage Data:** Information about how you interact with the application and displayed advertisements. This includes data such as frequency of use, features viewed, interactions with ads (clicks, impressions), and application performance information. This data is aggregated and not linked to your personal identity.
+* **Diagnostic and Performance Data:** Information about crashes, responsiveness, and other technical data related to the application's performance.
+* **Approximate Location:** Third-party services may infer an approximate geographic location (e.g., country or region) from your device's IP address. This information is used for ad relevance and aggregated analytics, and is not used to track your exact location.
 
 ---
 
-## 4. Disclosure Of Data
+## 2. Use of Collected Data
+
+The anonymized data and device identifiers collected via third-party services are used for the following purposes:
+
+* **To Provide and Maintain the Service:** Ensure the proper functioning of the application.
+* **To Display Advertisements:** To fund the Service by displaying relevant ads via Google AdMob.
+* **To Improve the Service:** Understand how the application is used to identify areas for improvement and fix bugs.
+* **To Monitor Service Usage:** Track overall usage trends and performance.
+* **To Detect and Prevent Technical Issues:** Ensure the stability and reliability of the application.
+* **To Process In-App Subscriptions:** Manage subscription purchases through payment platforms.
+
+---
+
+## 3. Transfer of Data
+
+Your information (primarily device identifiers and anonymized usage data) may be transferred to — and maintained on — computers located outside of your state, province, country or other governmental jurisdiction where the data protection laws may differ than those from your jurisdiction.
+
+By using the Service, you consent to this transfer.
+
+We will take all steps reasonably necessary to ensure that your data is treated securely and in accordance with this Privacy Policy. No transfer of personally identifiable data is performed by us.
+
+---
+
+## 4. Disclosure of Data
+
+We may disclose anonymized data or device identifiers to third-party service providers, as described below.
 
 ### Legal Requirements
-[Your Company/Your Name] may disclose your Personal Data in the good faith belief that such action is necessary to:
 
-* To comply with a legal obligation
-* To protect and defend the rights or property of [Your Company/Your Name]
-* To prevent or investigate possible wrongdoing in connection with the Service
-* To protect the personal safety of users of the Service or the public
-* To protect against legal liability
+We may disclose information (non-PII) in the good faith belief that such action is necessary to:
 
----
-
-## 5. Security Of Data
-
-The security of your data is important to us, but remember that no method of transmission over the Internet, or method of electronic storage is 100% secure. While we strive to use commercially acceptable means to protect your Personal Data, we cannot guarantee its absolute security.
+* Comply with a legal obligation.
+* Protect and defend our rights or property.
+* Prevent or investigate possible wrongdoing in connection with the Service.
+* Protect the personal safety of users of the Service or the public.
+* Protect against legal liability.
 
 ---
 
-## 6. Service Providers
+## 5. Security of Data
 
-We may employ third party companies and individuals to facilitate our Service ("Service Providers"), to provide the Service on our behalf, to perform Service-related services or to assist us in analyzing how our Service is used.
+The security of your data is important to us. While we do not collect Personal Data, we strive to use commercially acceptable means to protect the data we collect via third parties. However, no method of transmission over the Internet, or method of electronic storage is 100% secure.
 
-These third parties have access to your Personal Data only to perform these tasks on our behalf and are obligated not to disclose or use it for any other purpose.
+---
 
-* **Analytics:** We may use third-party Service Providers to monitor and analyze the use of our Service.
-    * **Google Analytics for Firebase:** Firebase is an analytics service provided by Google Inc. You may opt-out of certain Firebase features through your mobile device settings, such as your device advertising settings or by following the instructions provided by Google in their Privacy Policy. For more information on what type of information Firebase collects, please visit the Google Privacy & Terms web page: [https://policies.google.com/privacy?hl=en](https://policies.google.com/privacy?hl=en)
+## 6. Third-Party Service Providers (Advertising and Analytics)
 
-* **In-App Purchases:** We may provide paid products and/or services within the Service. In that case, we use third-party services for payment processing (e.g. payment processors).
-    * We will not store or collect your payment card details. That information is provided directly to our third-party payment processors whose use of your personal information is governed by their Privacy Policy. These payment processors adhere to the standards set by PCI-DSS as managed by the PCI Security Standards Council, which is a joint effort of brands like Visa, Mastercard, American Express and Discover.
-        * **Google Play In-App Payments:** Their Privacy Policy can be viewed at [https://www.google.com/policies/privacy/](https://www.google.com/policies/privacy/)
-        * **Apple App Store In-App Payments:** Their Privacy Policy can be viewed at [https://www.apple.com/legal/privacy/data/en/apple-media-services/](https://www.apple.com/legal/privacy/data/en/apple-media-services/)
+We employ third-party companies and individuals to facilitate our Service ("Service Providers"), including providing advertising and analyzing how our Service is used. These third parties have access to data (primarily device identifiers and non-personal usage data) only to perform these tasks on our behalf and are obligated not to disclose or use it for any other purpose.
+
+* **Advertising (Google AdMob):**
+    We use Google AdMob, a mobile advertising service provided by Google Ireland Limited ("Google"), to display advertisements within our application. AdMob may collect device identifiers and usage data for ad personalization and measurement of ad effectiveness. This information is collected and processed in accordance with Google's Privacy Policy. To learn more about how Google uses data for advertising, please visit: [https://policies.google.com/technologies/ads](https://policies.google.com/technologies/ads)
+    We do not have direct control over the specific data collected by Google AdMob or how Google uses this data for its own purposes, beyond what is permitted by their policies and your device's privacy settings.
+
+* **Usage Analytics (Google Analytics for Firebase):**
+    We use Google Analytics for Firebase, an analytics service provided by Google Inc., to collect **anonymized and aggregated** usage data to understand application performance and user behavior, without collecting personally identifiable data. For more information on Firebase's privacy policy, please visit: [https://policies.google.com/privacy?hl=en](https://policies.google.com/privacy?hl=en)
+
+* **In-App Purchases (Apple App Store / Google Play Store):**
+    We offer subscriptions through Apple and Google's in-app purchase platforms. We do not store your payment information. This information is processed directly by the third-party payment platforms (Apple App Store and Google Play Store), whose use of your information is governed by their respective privacy policies:
+    * Google Play In-App Payments: [https://www.google.com/policies/privacy/](https://www.google.com/policies/privacy/)
+    * Apple App Store In-App Payments: [https://www.apple.com/legal/privacy/data/en/apple-media-services/](https://www.apple.com/legal/privacy/data/en/apple-media-services/)
 
 ---
 
 ## 7. Links To Other Sites
 
-Our Service may contain links to other sites that are not operated by us. If you click on a third-party link, you will be directed to that third party's site. We strongly advise you to review the Privacy Policy of every site you visit.
+Our Service may contain links to other sites that are not operated by us. If you click on a third-party link, you will be directed to that third-party's site. We strongly advise you to review the Privacy Policy of every site you visit.
 
 We have no control over and assume no responsibility for the content, privacy policies or practices of any third-party sites or services.
 
 ---
 
-## 8. Children's Privacy (Important)
+## 8. Children's Privacy
 
-**Our Service is not intended for and does not knowingly target anyone under the age of 13 ("Children"). We do not knowingly collect personally identifiable information from children under 13.**
+**Our Service is not intended for anyone under the age of 13 ("Children") and does not knowingly target them.**
 
-If you are a parent or guardian and you are aware that your child has provided us with Personal Data without your verifiable parental consent, please contact us immediately. If we become aware that we have collected Personal Data from children under 13 without verification of parental consent, we will take steps to remove that information from our servers promptly.
+Since we do not have a registration mechanism or direct collection of Personal Data, we do not knowingly collect personally identifiable information from children under 13. However, advertising served via Google AdMob may collect device identifiers, which could be considered personal data.
 
-**If you are under 13, please do not use or provide any information on this Service or through any of its features.**
+If you are a parent or guardian and you are aware that your child has provided us with personal information (e.g., if you believe device identifiers linked to your child have been inappropriately collected via AdMob without your verifiable parental consent), please contact us immediately. If we become aware that we have collected data from children under 13 in a non-compliant manner, we will take steps to remove that information from our servers promptly.
+
+**If you are under 13, please do not use this Service or provide any information through its features without the supervision of a parent or guardian.**
 
 ---
 
-## 9. Changes To This Privacy Policy
+## 9. Your Controls and Right to Data Deletion
+
+Since Inner Glow does not directly collect any personally identifiable data from you, we do not offer an internal in-app mechanism to request the deletion of "your" account or "your" personal data directly, as such data is not stored by us.
+
+However, you have significant controls regarding the data collected by third-party services:
+
+* **Managing Advertising Identifiers:** Advertising services like Google AdMob use a unique advertising identifier associated with your device (ADID on Android, IDFA on iOS). You can **reset this identifier** at any time through your mobile device's privacy settings. Resetting your advertising identifier may affect ad personalization. You can also enable "Limit Ad Tracking" or "Opt out of Ads Personalization" in your device settings.
+    * For Android: Settings > Google > Ads
+    * For iOS: Settings > Privacy & Security > Tracking (to disable tracking) or Settings > Privacy & Security > Apple Advertising (to reset Identifier or turn off Personalized Ads).
+
+* **Opting Out of Personalized Ads:** You can typically opt out of personalized advertising from Google and other ad networks by visiting [https://adssettings.google.com/](https://adssettings.google.com/) and [www.aboutads.info/choices](http://www.aboutads.info/choices).
+* **Deleting the App:** If you wish to cease all data collection related to your usage of Inner Glow, you can simply delete the application from your device. This will remove the app's access to your device and stop any further data collection by the integrated third-party services on that device for Inner Glow.
+* **Exercising Rights with Third-Party Providers:** For any data collected by third-party services (like Google AdMob or Firebase), you would need to exercise your data rights (e.g., access, deletion requests) directly with those third-party providers, subject to their respective privacy policies and legal obligations.
+
+---
+
+## 10. Changes to This Privacy Policy
 
 We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page.
 
-We will let you know via email and/or a prominent notice on our Service, prior to the change becoming effective and update the "Last updated" date at the top of this Privacy Policy.
+We will let you know via a prominent notice on our Service, prior to the change becoming effective and update the "last updated" date at the top of this Privacy Policy.
 
 You are advised to review this Privacy Policy periodically for any changes. Changes to this Privacy Policy are effective when they are posted on this page.
 
 ---
 
-## 10. Contact Us
+## 11. Contact Us
 
 If you have any questions about this Privacy Policy, please contact us:
 
-* By email: gravitylab@gmail.com
-* By visiting this page on our website: www.gravitylab.com
+By email: gravityleap@gmaol.com
+
+```http://googleusercontent.com/generated_image_content/0
+
